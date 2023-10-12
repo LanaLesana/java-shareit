@@ -1,6 +1,7 @@
-package ru.practicum.shareit.storage.item;
+package ru.practicum.shareit.item;
 
 import org.springframework.stereotype.Component;
+import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 
 import java.util.ArrayList;
@@ -16,14 +17,17 @@ public class InMemoryItemStorage implements ItemStorage {
     private Integer generatedItemId = 1;
 
     @Override
-    public Item addItem(Item item) {
-        item.setId(generatedItemId++);
+    public ItemDto addItem(ItemDto itemDto) {
+        itemDto.setId(generatedItemId++);
+        Item item = itemDto.fromItemDto(itemDto);
         itemHashMap.put(item.getId(), item);
-        return item;
+        ItemDto itemDtoToReturn = itemHashMap.get(item.getId()).toItemDto(itemHashMap.get(item.getId()));
+        return itemDtoToReturn;
     }
 
     @Override
-    public Item updateItem(Item item) {
+    public ItemDto updateItem(ItemDto itemDto) {
+        Item item = itemDto.fromItemDto(itemDto);
         if (itemHashMap.containsKey(item.getId())) {
             Item itemToUpdate = itemHashMap.get(item.getId());
 
@@ -51,32 +55,34 @@ public class InMemoryItemStorage implements ItemStorage {
         } else {
             return null;
         }
-        return item;
+        return getItemById(item.getId());
     }
 
     @Override
-    public Item getItemById(int id) {
+    public ItemDto getItemById(int id) {
         if (itemHashMap.get(id) == null) {
             return null;
         } else {
-            return itemHashMap.get(id);
+            ItemDto itemDtoToReturn = itemHashMap.get(id).toItemDto(itemHashMap.get(id));
+            return itemDtoToReturn;
         }
     }
 
     @Override
-    public List<Item> getAllItemsByOwnerId(int id) {
+    public List<ItemDto> getAllItemsByOwnerId(int id) {
         Collection<Item> values = itemHashMap.values();
 
-        List<Item> ownerItems = values.stream()
+        List<ItemDto> ownerItems = values.stream()
                 .filter(item -> item.getOwner().getId() == id)
+                .map(Item::toItemDto)
                 .collect(Collectors.toList());
         return ownerItems;
     }
 
     @Override
-    public List<Item> searchItem(String keyWord) {
+    public List<ItemDto> searchItem(String keyWord) {
         if (keyWord.isBlank() || keyWord == null) {
-            return new ArrayList<Item>();
+            return new ArrayList<ItemDto>();
         } else {
             Collection<Item> values = itemHashMap.values();
 
@@ -84,8 +90,9 @@ public class InMemoryItemStorage implements ItemStorage {
                     .filter(item -> item.getAvailable() == true)
                     .collect(Collectors.toList());
 
-            List<Item> filteredItems = allAvailableItems.stream()
+            List<ItemDto> filteredItems = allAvailableItems.stream()
                     .filter(item -> containsText(item, keyWord))
+                    .map(Item::toItemDto)
                     .collect(Collectors.toList());
 
             return filteredItems;

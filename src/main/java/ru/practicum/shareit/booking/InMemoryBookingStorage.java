@@ -1,6 +1,4 @@
-package ru.practicum.shareit.storage.booking;
-
-import ru.practicum.shareit.booking.Booking;
+package ru.practicum.shareit.booking;
 
 import java.util.HashMap;
 

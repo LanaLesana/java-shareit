@@ -1,49 +1,55 @@
-package ru.practicum.shareit.storage.user;
+package ru.practicum.shareit.user;
 
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.ValidationException;
-import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.dto.UserDtoMapper;
+import ru.practicum.shareit.user.model.User;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class InMemoryUserStorage implements UserStorage {
     private HashMap<Integer, User> userHashMap = new HashMap<>();
     private int generatedUserId = 1;
+    private UserDtoMapper userDtoMapper = new UserDtoMapper();
 
     @Override
-    public User getUserById(Integer id) {
+    public UserDto getUserById(Integer id) {
         if (userHashMap.get(id) == null) {
             return null;
         } else {
-            return userHashMap.get(id);
+            UserDto userDto = userDtoMapper.toUserDto(userHashMap.get(id));
+            return userDto;
         }
     }
 
     @Override
-    public User addUser(User user) {
-        if (!isDuplicateByEmail(user)) {
-            user.setId(generatedUserId++);
+    public UserDto addUser(UserDto userDto) {
+        if (!isDuplicateByEmail(userDto)) {
+            userDto.setId(generatedUserId++);
+            User user = userDtoMapper.fromUserDto(userDto);
             userHashMap.put(user.getId(), user);
-            return user;
+            return userDto;
         } else {
             throw new ValidationException("Такой пользователь уже существует");
         }
     }
 
     @Override
-    public User updateUser(User user, int userId) {
+    public UserDto updateUser(UserDto user, int userId) {
         if (userHashMap.get(userId) != null) {
             User userToUpdate = userHashMap.get(userId);
-            List<User> allUsers = getAllUsers();
+            List<UserDto> allUsers = getAllUsers();
 
             boolean isDuplicate = false;
 
-            for (User userInList : allUsers) {
+            for (UserDto userInList : allUsers) {
                 if (userInList.getEmail().equals(user.getEmail()) && userInList.getId() != userId) {
                     isDuplicate = true;
                 }
@@ -57,7 +63,9 @@ public class InMemoryUserStorage implements UserStorage {
             if (user.getName() != null && !user.getName().equals(userToUpdate.getName())) {
                 userToUpdate.setName(user.getName());
             }
-            return userHashMap.get(userId);
+
+            UserDto userDto = userDtoMapper.toUserDto(userHashMap.get(userId));
+            return userDto;
 
         } else {
             return null;
@@ -65,10 +73,14 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public List<User> getAllUsers() {
+    public List<UserDto> getAllUsers() {
         Collection<User> allUsers = userHashMap.values();
         List<User> allUsersList = new ArrayList<>(allUsers);
-        return allUsersList;
+        List<UserDto> userDtoList = allUsersList.stream()
+                .map(userDtoMapper::toUserDto)
+                .collect(Collectors.toList());
+
+        return userDtoList;
     }
 
     @Override
@@ -81,11 +93,11 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public boolean isDuplicateByEmail(User userToCheck) {
-        List<User> users = getAllUsers();
+    public boolean isDuplicateByEmail(UserDto userToCheck) {
+        List<UserDto> users = getAllUsers();
         List<String> usersEmails = new ArrayList<>();
-        for (User user : users) {
-            usersEmails.add(user.getEmail());
+        for (UserDto userDto : users) {
+            usersEmails.add(userDto.getEmail());
         }
         if (usersEmails.contains(userToCheck.getEmail())) {
             return true;

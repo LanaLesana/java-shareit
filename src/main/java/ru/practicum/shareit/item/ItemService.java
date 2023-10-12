@@ -1,5 +1,6 @@
-package ru.practicum.shareit.storage.item;
+package ru.practicum.shareit.item;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -7,55 +8,61 @@ import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.storage.user.UserStorage;
+import ru.practicum.shareit.user.UserStorage;
+import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.dto.UserDtoMapper;
+import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class ItemService implements ItemServiceInterface {
     @Autowired
     ItemStorage itemStorage;
     @Autowired
     UserStorage userStorage;
+    UserDtoMapper userDtoMapper = new UserDtoMapper();
 
     @Override
     public ItemDto addItem(ItemDto itemDto, int sharerUserId) {
         if (itemDto.getAvailable() == null) {
             throw new BadRequestException("Укажите доступность предмета к аренде");
         }
-        Item item = itemDto.fromItemDto(itemDto);
-        item.setOwner(userStorage.getUserById(sharerUserId));
-        if (item.getOwner() == null) {
+        UserDto ownerDto = userStorage.getUserById(sharerUserId);
+        if (ownerDto == null) {
             throw new NotFoundException("Такого пользователя нет.");
         } else {
-            isValidItem(item);
+            User owner = userDtoMapper.fromUserDto(ownerDto);
+            itemDto.setOwner(owner);
         }
 
-        log.info("Adding item " + item.getName());
-        Item returnedItem = itemStorage.addItem(item);
-        ItemDto returnedDto = returnedItem.toItemDto(returnedItem);
-        return returnedDto;
+        if (itemDto.getOwner() == null) {
+            throw new NotFoundException("Такого пользователя нет.");
+        } else {
+            isValidItem(itemDto);
+        }
+
+        log.info("Adding item " + itemDto.getName());
+        ItemDto returnedItemDto = itemStorage.addItem(itemDto);
+        return returnedItemDto;
     }
 
     @Override
     public ItemDto updateItem(ItemDto itemDto, int sharerUserId, int itemId) {
-        Item item = itemDto.fromItemDto(itemDto);
-        Item itemToCheckOwner = itemStorage.getItemById(itemId);
+        ItemDto itemToCheckOwner = itemStorage.getItemById(itemId);
         if (itemToCheckOwner.getOwner() == null || itemToCheckOwner.getOwner().getId() != sharerUserId) {
             throw new NotFoundException("Не совпадает идентификатор пользователя");
         }
-        item.setId(itemId);
+        itemDto.setId(itemId);
 
-        //isValidItem(item);
-        if (itemStorage.updateItem(item) == null) {
+        if (itemStorage.updateItem(itemDto) == null) {
             throw new BadRequestException("Такого предмета нет");
         } else {
-            log.info("Updating item " + item.getName());
-            Item returnedItem = itemStorage.getItemById(item.getId());
-            ItemDto returnedDto = returnedItem.toItemDto(returnedItem);
-            return returnedDto;
+            log.info("Updating item " + itemDto.getName());
+            ItemDto returnedItem = itemStorage.getItemById(itemDto.getId());
+            return returnedItem;
         }
     }
 
@@ -65,14 +72,13 @@ public class ItemService implements ItemServiceInterface {
             throw new BadRequestException("Такого предмета нет");
         } else {
             log.info("Getting item " + id);
-            Item returnedItem = itemStorage.getItemById(id);
-            ItemDto returnedDto = returnedItem.toItemDto(returnedItem);
+            ItemDto returnedDto = itemStorage.getItemById(id);
             return returnedDto;
         }
     }
 
     @Override
-    public List<Item> getAllItemsByOwnerId(int id) {
+    public List<ItemDto> getAllItemsByOwnerId(int id) {
         if (id <= 0) {
             throw new BadRequestException("Неверно указан id пользователя");
         }
@@ -80,11 +86,11 @@ public class ItemService implements ItemServiceInterface {
     }
 
     @Override
-    public List<Item> searchItem(String keyWord) {
+    public List<ItemDto> searchItem(String keyWord) {
         return itemStorage.searchItem(keyWord);
     }
 
-    public void isValidItem(Item item) {
+    public void isValidItem(ItemDto item) {
         if (item.getName() == null || item.getName().isBlank()) {
             throw new BadRequestException("Не указано называние предмета");
         } else if (item.getDescription() == null || item.getDescription().isBlank()) {

@@ -1,29 +1,29 @@
-package ru.practicum.shareit.storage.user;
+package ru.practicum.shareit.user;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.ValidationException;
-import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.user.dto.UserDto;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class UserService implements UserServiceInterface {
     @Autowired
     UserStorage userStorage;
 
     @Override
-    public User addUser(User user) {
-        System.out.println("Add user Service before valid");
-        isValidUser(user);
-        System.out.println("Add user Service after valid");
-        return userStorage.addUser(user);
+    public UserDto addUser(UserDto userDto) {
+        isValidUser(userDto);
+        return userStorage.addUser(userDto);
     }
 
     @Override
-    public User updateUser(User user, int userId) {
-        if (userStorage.updateUser(user, userId) == null) {
+    public UserDto updateUser(UserDto userDto, int userId) {
+        if (userStorage.updateUser(userDto, userId) == null) {
             throw new BadRequestException("Такого пользователя не существует");
         } else {
             return userStorage.getUserById(userId);
@@ -31,7 +31,7 @@ public class UserService implements UserServiceInterface {
     }
 
     @Override
-    public User getUserById(int id) {
+    public UserDto getUserById(int id) {
         if (userStorage.getUserById(id) == null) {
             throw new BadRequestException("Такого пользователя не существует");
         } else {
@@ -40,7 +40,7 @@ public class UserService implements UserServiceInterface {
     }
 
     @Override
-    public List<User> getAllUsers() {
+    public List<UserDto> getAllUsers() {
         return userStorage.getAllUsers();
     }
 
@@ -49,10 +49,10 @@ public class UserService implements UserServiceInterface {
         userStorage.deleteUser(id);
     }
 
-    void isValidUser(User user) {
-        if (user.getName() == null || user.getName().isBlank()) {
+    void isValidUser(UserDto userDto) {
+        if (userDto.getName() == null || userDto.getName().isBlank()) {
             throw new ValidationException("Не задано имя пользователя");
-        } else if (user.getEmail() == null || user.getEmail().isBlank()) {
+        } else if (userDto.getEmail() == null || userDto.getEmail().isBlank()) {
             throw new BadRequestException("Не задан e-mail пользователя");
         }
     }

@@ -1,4 +1,4 @@
-package ru.practicum.shareit.storage.request;
+package ru.practicum.shareit.request;
 
 import org.apache.coyote.Request;
 

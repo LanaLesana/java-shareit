@@ -1,7 +1,6 @@
-package ru.practicum.shareit.storage.item;
+package ru.practicum.shareit.item;
 
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.model.Item;
 
 import java.util.List;
 
@@ -12,7 +11,7 @@ public interface ItemServiceInterface {
 
     ItemDto getItemById(int id);
 
-    List<Item> getAllItemsByOwnerId(int id);
+    List<ItemDto> getAllItemsByOwnerId(int id);
 
-    List<Item> searchItem(String keyWord);
+    List<ItemDto> searchItem(String keyWord);
 }
