@@ -19,7 +19,7 @@ import java.util.List;
 
 public class UserController {
     @Autowired
-    private final UserService userService;
+    private final UserServiceImpl userService;
 
     @GetMapping("/users")
     public List<UserDto> getAllUsers() {

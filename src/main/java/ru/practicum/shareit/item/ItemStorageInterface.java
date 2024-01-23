@@ -4,7 +4,7 @@ import ru.practicum.shareit.item.dto.ItemDto;
 
 import java.util.List;
 
-public interface ItemStorage {
+public interface ItemStorageInterface {
     ItemDto addItem(ItemDto item);
 
     ItemDto updateItem(ItemDto item);
