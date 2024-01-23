@@ -7,9 +7,7 @@ import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.status.Status;
 import ru.practicum.shareit.exception.BadRequestException;
-import ru.practicum.shareit.exception.ConflictException;
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
@@ -88,6 +86,7 @@ public class BookingValidation {
             throw new NotFoundException("Ошибка бронирования ");
         }
     }
+
     public void checkOwnerAndBookerMatch(Integer ownerId, Booking booking) {
         if (booking.getBooker().getId() != ownerId && booking.getItem().getOwner().getId() != ownerId) {
             throw new NotFoundException("Ошибка бронирования ");
