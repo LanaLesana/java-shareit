@@ -56,10 +56,10 @@ public class UserServiceImpl implements UserServiceInterface {
 
         User receivedUser = userDtoMapper.fromUserDto(userDto);
 
-        if (receivedUser.getEmail() != null) {
+        if (receivedUser.getEmail() != null && !receivedUser.getEmail().isBlank()) {
             existingUser.setEmail(receivedUser.getEmail());
         }
-        if (receivedUser.getName() != null) {
+        if (receivedUser.getName() != null && !receivedUser.getName().isBlank()) {
             existingUser.setName(receivedUser.getName());
         }
         return userDtoMapper.toUserDto(userRepository.save(existingUser));

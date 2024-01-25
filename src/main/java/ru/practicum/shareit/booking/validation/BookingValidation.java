@@ -69,6 +69,9 @@ public class BookingValidation {
         if (approved == null) {
             throw new BadRequestException("Нет данных для изменения");
         }
+        if (idUser == null) {
+            throw new BadRequestException("Нет данных для изменения");
+        }
         if (booking.getItem().getOwner().getId() != idUser) {
             throw new NotFoundException("Нет разрешения на изменение");
         }

@@ -33,23 +33,15 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class ItemServiceImpl implements ItemServiceInterface {
-    @Autowired
-    JpaItemRepository jpaItemRepository;
-    @Autowired
-    JpaCommentRepository jpaCommentRepository;
-    @Autowired
-    ItemStorage itemStorage;
-    @Autowired
-    JpaUserRepository userStorage;
-    @Autowired
-    BookingStorage bookingStorage;
-    @Autowired
-    JpaBookingRepository jpaBookingRepository;
+    private final JpaItemRepository jpaItemRepository;
+    private final JpaCommentRepository jpaCommentRepository;
+    private final ItemStorage itemStorage;
+    private final JpaUserRepository userStorage;
+    private final BookingStorage bookingStorage;
+    private final JpaBookingRepository jpaBookingRepository;
     UserDtoMapper userDtoMapper = new UserDtoMapper();
-    @Autowired
-    ItemValidation itemValidation;
-    @Autowired
-    private MappingComment mappingComment;
+    private final ItemValidation itemValidation;
+    private final MappingComment mappingComment;
 
     @Override
     @Transactional
@@ -191,6 +183,9 @@ public class ItemServiceImpl implements ItemServiceInterface {
     @Override
     @Transactional
     public CommentDto addComment(Integer idUser, Integer itemId, CommentDto commentDto) {
+        if (itemStorage.getItem(itemId) == null) {
+            throw new NotFoundException("Такого предмета нет.");
+        }
         LocalDateTime start = bookingStorage.getBookingById(itemId).getStart();
         itemValidation.checkComment(commentDto.getText(), start);
         List<Booking> bookings = jpaBookingRepository.findAllByBooker_IdAndItem_Id(idUser, itemId);
@@ -205,6 +200,7 @@ public class ItemServiceImpl implements ItemServiceInterface {
                 .created(localDateTime).build();
         return mappingComment.mappingCommentInCommentDto(jpaCommentRepository.save(comment));
     }
+
 }
 
 

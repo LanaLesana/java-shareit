@@ -139,7 +139,7 @@ public class ItemStorage {
             BookingConcise bookingConciseLast;
             BookingConcise bookingConciseNext;
 
-            if (lastBooking != null || nextBooking != null) {
+            if (lastBooking != null && nextBooking != null) {
                 bookingConciseLast = BookingConcise.builder().id(nextBooking.getId())
                         .bookerId(nextBooking.getBooker().getId()).build();
                 bookingConciseNext = BookingConcise.builder().id(lastBooking.getId())
