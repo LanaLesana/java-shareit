@@ -70,6 +70,7 @@ public class BookingController {
 
         return bookingService.getBookingByOwner(state, ownerId);
     }
+
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<Object> handleNotFoundException(ConflictException ex) {
         Map<String, Object> body = new LinkedHashMap<>();

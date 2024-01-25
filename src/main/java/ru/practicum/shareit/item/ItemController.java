@@ -65,6 +65,7 @@ public class ItemController {
 
         return itemService.addComment(id, itemId, commentDto);
     }
+
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<Object> handleNotFoundException(ConflictException ex) {
         Map<String, Object> body = new LinkedHashMap<>();

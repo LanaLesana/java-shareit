@@ -53,6 +53,7 @@ public class UserController {
     public void deleteUser(@PathVariable int userId) {
         userService.deleteUserById(userId);
     }
+
     @ExceptionHandler(ConflictException.class)
     public ResponseEntity<Object> handleConflictException(ConflictException ex) {
         Map<String, Object> body = new LinkedHashMap<>();
