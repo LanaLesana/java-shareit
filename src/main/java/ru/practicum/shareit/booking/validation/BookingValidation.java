@@ -2,6 +2,7 @@ package ru.practicum.shareit.booking.validation;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.model.Booking;
@@ -25,19 +26,19 @@ public class BookingValidation {
             throw new NotFoundException("Вещь не найдена");
         }
         if (bookingDto.getEnd() == null || bookingDto.getStart() == null) {
-            throw new BadRequestException("Не заполнено время");
+            throw new BadRequestException(HttpStatus.BAD_REQUEST, "Не заполнено время");
         }
         if (bookingDto.getEnd().isBefore(bookingDto.getStart())) {
-            throw new BadRequestException("Время начала бронирования позже конца");
+            throw new BadRequestException(HttpStatus.BAD_REQUEST, "Время начала бронирования позже конца");
         }
         if (bookingDto.getEnd().isEqual(bookingDto.getStart()) && bookingDto.getStart().isAfter(localDate)) {
-            throw new BadRequestException("Неправильная дата");
+            throw new BadRequestException(HttpStatus.BAD_REQUEST, "Неправильная дата");
         }
         if (bookingDto.getStart().isBefore(localDate)) {
-            throw new BadRequestException("Неправильная дата");
+            throw new BadRequestException(HttpStatus.BAD_REQUEST, "Неправильная дата");
         }
         if (!item.getAvailable()) {
-            throw new BadRequestException("Вещь недоступна для бронирования");
+            throw new BadRequestException(HttpStatus.BAD_REQUEST, "Вещь недоступна для бронирования");
         }
     }
 
@@ -49,7 +50,7 @@ public class BookingValidation {
 
     public void checkBookerOrOwner(List<Booking> bookingUser, List<Booking> booking) {
         if (booking.isEmpty() && bookingUser.isEmpty()) {
-            throw new BadRequestException("Нет разрешения для просмотра");
+            throw new BadRequestException(HttpStatus.BAD_REQUEST, "Нет разрешения для просмотра");
         }
     }
 
@@ -67,10 +68,10 @@ public class BookingValidation {
 
     public void checkUpdateBooking(Integer idUser, Boolean approved, Booking booking) {
         if (approved == null) {
-            throw new BadRequestException("Нет данных для изменения");
+            throw new BadRequestException(HttpStatus.BAD_REQUEST, "Нет данных для изменения");
         }
         if (idUser == null) {
-            throw new BadRequestException("Нет данных для изменения");
+            throw new BadRequestException(HttpStatus.BAD_REQUEST, "Нет данных для изменения");
         }
         if (booking.getItem().getOwner().getId() != idUser) {
             throw new NotFoundException("Нет разрешения на изменение");
@@ -80,7 +81,7 @@ public class BookingValidation {
     public void checkIdBookerUpdate(Boolean approved, Booking booking) {
         log.info("Получен статус" + booking.getStatus());
         if (approved && booking.getStatus() == Status.APPROVED) {
-            throw new BadRequestException("Данные уже обновлены ");
+            throw new BadRequestException(HttpStatus.BAD_REQUEST, "Данные уже обновлены ");
         }
     }
 

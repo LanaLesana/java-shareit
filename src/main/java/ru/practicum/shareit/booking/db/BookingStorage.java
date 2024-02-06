@@ -2,6 +2,7 @@ package ru.practicum.shareit.booking.db;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingNoTimeStamp;
@@ -41,10 +42,19 @@ public class BookingStorage {
         return jpaBooking.findBookingById(id);
     }
 
-    public List<Booking> getAllBookingUsers(Integer id) {
+    public List<Booking> getAllBookingUsers(Integer id, Pageable size) {
+        return jpaBooking.findAllByBooker_IdOrderByStartDesc(id, size);
+    }
+
+    public List<Booking> getBookingsByUser(Integer id) {
         return jpaBooking.findAllByBooker_IdOrderByStartDesc(id);
     }
 
+
+    public List<Booking> getBookingByOwner(Integer ownerId, Pageable pageable) {
+
+        return jpaBooking.findBookingByItem_OwnerIdOrderByStartDesc(ownerId, pageable);
+    }
 
     public List<Booking> getBookingByOwner(Integer ownerId) {
 
