@@ -1,5 +1,6 @@
 package ru.practicum.shareit.request.storage;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +46,11 @@ public class ItemRequestRepositoryTest {
         request2.setRequester(user2);
         request2.setCreated(LocalDateTime.now());
         entityManager.persist(request2);
+    }
+
+    @AfterEach
+    void tearDown() {
+        itemRequestRepository.deleteAll();
     }
 
     @Test

@@ -1,5 +1,6 @@
 package ru.practicum.shareit.user.db;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -24,6 +25,11 @@ public class JpaUserRepositoryTest {
         User savedUser = userRepository.save(user);
 
         assertNotNull(savedUser.getId(), "User should have an id after saving.");
+    }
+
+    @AfterEach
+    void tearDown() {
+        userRepository.deleteAll();
     }
 
     @Test

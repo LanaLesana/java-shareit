@@ -3,6 +3,7 @@ package ru.practicum.shareit.item.db;
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -32,6 +33,13 @@ class ItemStorageTest {
 
     @InjectMocks
     private ItemStorage itemStorage;
+
+    @AfterEach
+    void tearDown() {
+        jpaItemRepository.deleteAll();
+        jpaBookingRepository.deleteAll();
+        jpaCommentRepository.deleteAll();
+    }
 
     @Test
     void addItemTest() {
