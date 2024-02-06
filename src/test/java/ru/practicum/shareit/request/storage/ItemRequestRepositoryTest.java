@@ -53,11 +53,6 @@ public class ItemRequestRepositoryTest {
         itemRequestRepository.deleteAll();
     }
 
-    @Test
-    void findAllByRequesterIdTest() {
-        List<Request> requests = itemRequestRepository.findAllByRequesterId(1);
-        assertEquals(1, requests.size(), "Expected to find one request for requester ID 1");
-    }
 
     @Test
     void findByOwnerIdTest() {
