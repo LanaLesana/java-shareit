@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 
 @Component
-public class InMemoryItemStorage implements ItemStorage {
+public class InMemoryItemStorageInterface implements ItemStorageInterface {
     private HashMap<Integer, Item> itemHashMap = new HashMap<>();
     private Integer generatedItemId = 1;
 

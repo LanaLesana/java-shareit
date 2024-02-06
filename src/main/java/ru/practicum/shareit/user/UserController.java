@@ -3,11 +3,17 @@ package ru.practicum.shareit.user;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.exception.ConflictException;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import javax.validation.Valid;
+import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * TODO Sprint add-controllers.
@@ -19,7 +25,7 @@ import java.util.List;
 
 public class UserController {
     @Autowired
-    private final UserService userService;
+    private final UserServiceImpl userService;
 
     @GetMapping("/users")
     public List<UserDto> getAllUsers() {
@@ -46,6 +52,14 @@ public class UserController {
     @DeleteMapping("/users/{userId}")
     public void deleteUser(@PathVariable int userId) {
         userService.deleteUserById(userId);
+    }
+
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<Object> handleConflictException(ConflictException ex) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("message", ex.getMessage());
+        return new ResponseEntity<>(body, HttpStatus.CONFLICT);
     }
 
 
