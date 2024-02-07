@@ -165,7 +165,6 @@ class BookingServiceImplTest {
         when(bookingStorage.getBookingsByUser(user1.getId())).thenReturn(List.of(booking1));
         when(bookingStorage.getBookingByOwner(user1.getId())).thenReturn(List.of(booking1));
 
-        // Execute the method under test
         Booking result = bookingService.getBooking(bookingId, user1.getId());
 
         assertNotNull(result, "The booking should not be null");
@@ -184,13 +183,13 @@ class BookingServiceImplTest {
         int from = -1;
         int size = 10;
 
-        BadRequestException thrown = assertThrows(
-                BadRequestException.class,
+        NotFoundException thrown = assertThrows(
+                NotFoundException.class,
                 () -> bookingService.getAllBookingUsers(userId, from, size),
                 "Expected getAllBookingUsers to throw, but it didn't"
         );
 
-        assertTrue(thrown.getMessage().contains("Не может быть меньше нуля"));
+        assertTrue(thrown.getMessage().contains("Такого пользователя"));
     }
 
     @Test
