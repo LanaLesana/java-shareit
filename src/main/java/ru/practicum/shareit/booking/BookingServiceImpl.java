@@ -1,15 +1,13 @@
 package ru.practicum.shareit.booking;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.db.BookingStorage;
-import ru.practicum.shareit.booking.db.JpaBookingRepository;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.status.Status;
@@ -29,17 +27,12 @@ import java.util.Collections;
 import java.util.List;
 
 @Slf4j
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Service
 public class BookingServiceImpl implements BookingServiceInterface {
-    @Autowired
-    BookingStorage bookingRepository;
-    @Autowired
-    JpaItemRepository itemRepository;
-    @Autowired
-    JpaUserRepository userRepository;
-    @Autowired
-    private final JpaBookingRepository jpaBooking;
+    private final BookingStorage bookingRepository;
+    private final JpaItemRepository itemRepository;
+    private final JpaUserRepository userRepository;
     private final BookingValidation bookingValidation;
 
     @Override
@@ -96,9 +89,6 @@ public class BookingServiceImpl implements BookingServiceInterface {
 
     @Override
     public List<Booking> getAllBookingUsers(Integer userId, int from, int size) {
-        if (from < 0) {
-            throw new BadRequestException(HttpStatus.BAD_REQUEST, "Не может быть меньше нуля");
-        }
         User user = userRepository.findUserById(userId);
         if (user == null) {
             throw new NotFoundException("Такого пользователя нет");
@@ -160,9 +150,6 @@ public class BookingServiceImpl implements BookingServiceInterface {
     @Override
     @Transactional
     public List<Booking> getBookingByOwner(String state, Integer ownerId, Integer from, Integer size) {
-        if (from < 0) {
-            throw new BadRequestException(HttpStatus.BAD_REQUEST, "Не может быть меньше нуля");
-        }
         bookingValidation.checkBookerOrOwnerUser(userRepository.findUserById(ownerId));
         LocalDateTime timeNow = LocalDateTime.now();
         Pageable pageable = PageRequest.of(from / size, size, Sort.by("start").descending());

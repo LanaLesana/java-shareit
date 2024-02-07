@@ -33,7 +33,6 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     private final JpaUserRepository userRepository;
 
     @Override
-    @Transactional
     public RequestDto addItemRequest(RequestDto requestDto, Integer userId) {
         Optional<User> newUser = userRepository.findById(userId);
         if (newUser.isPresent()) {
@@ -51,7 +50,6 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
 
     @Override
-    @Transactional
     public List<RequestDtoWithRequest> getItemRequest(Integer userId) {
         User requester = userRepository.findById(userId).orElseThrow(() ->
                 new UserNotFoundException("Пользователь не найден " + userId));

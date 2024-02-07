@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.model.Booking;
@@ -25,6 +26,7 @@ import java.util.Map;
 @RequestMapping
 @AllArgsConstructor
 @Slf4j
+@Validated
 public class BookingController {
     @Autowired
     private final BookingServiceInterface bookingService;
@@ -53,8 +55,10 @@ public class BookingController {
     @GetMapping("/bookings")
     public List<Booking> getAllBookingUser(@RequestHeader("X-Sharer-User-Id") Integer id,
                                            @RequestParam(name = "state", required = false) String state,
-                                           @RequestParam(required = false, defaultValue = "0") @Min(0) int from,
-                                           @RequestParam(required = false, defaultValue = "10") @Min(0) int size) {
+                                           @RequestParam(required = false, defaultValue = "0") @Min(value = 0,
+                                                   message = "Не может быть меньше нуля") int from,
+                                           @RequestParam(required = false, defaultValue = "10") @Min(value = 0,
+                                                   message = "Не может быть меньше нуля") int size) {
         log.info("Вызов метода получения информации. Заголовок {}, Статус {}", id, state);
         if (state == null) {
             return bookingService.getAllBookingUsers(id, from, size);
