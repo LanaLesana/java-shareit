@@ -3,7 +3,7 @@
     DROP TABLE IF EXISTS bookings CASCADE;
     DROP TABLE IF EXISTS comments CASCADE;
     DROP TABLE IF EXISTS requests CASCADE;
-     DROP TABLE IF EXISTS comment CASCADE;
+    DROP TABLE IF EXISTS comment CASCADE;
 
 
     CREATE TABLE IF NOT EXISTS users (
@@ -11,13 +11,17 @@
         name VARCHAR(255) ,
         email VARCHAR(255)
     );
-     CREATE TABLE IF NOT EXISTS requests (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        description VARCHAR(255) NOT NULL,
-        requester_id INT,
-        created TIMESTAMP,
-        CONSTRAINT requests_fk_user FOREIGN KEY (requester_id) REFERENCES users(id)
 
+     create table IF NOT EXISTS REQUESTS
+(
+    ID   INT auto_increment,
+    DESCRIPTION  VARCHAR(1000)               not null,
+    REQUESTER_ID INT                      not null,
+    CREATED      TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    constraint "REQUESTS_pk"
+    primary key (ID),
+    constraint "REQUESTS_USERS_ID_fk"
+    foreign key (REQUESTER_ID) references USERS (ID) ON DELETE CASCADE
     );
 
     CREATE TABLE IF NOT EXISTS items (
@@ -26,7 +30,7 @@
         description VARCHAR(255),
         is_available BOOL,
         owner_id INT,
-        request_id VARCHAR(255),
+        request_id INT,
         FOREIGN KEY (owner_id) REFERENCES users(id),
         FOREIGN KEY (request_id) REFERENCES requests(id)
     );

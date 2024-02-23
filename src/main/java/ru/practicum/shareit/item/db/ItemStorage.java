@@ -14,6 +14,8 @@ import ru.practicum.shareit.item.model.Item;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Component
 @AllArgsConstructor
@@ -88,14 +90,17 @@ public class ItemStorage {
     public List<ItemDtoResponse> getAllByOwnerId(Integer userId) {
         List<ItemDtoResponse> itemDtoResponses = new ArrayList<>();
         List<Item> itemList = jpaItemRepository.findAllByOwnerId(userId);
-        List<Booking> allbookings = jpaBooking.findAll();
+        Iterable<Booking> bookingsIterable = jpaBooking.findAll();
+        List<Booking> allBookings = StreamSupport.stream(bookingsIterable.spliterator(), false)
+                .collect(Collectors.toList());
+
         for (Item item : itemList) {
             LocalDateTime currentDateTime = LocalDateTime.now();
             List<Booking> bookingListByItemId = new ArrayList<>();
             List<LocalDateTime> dateTimesStart = new ArrayList<>();
             List<LocalDateTime> dateTimesEnd = new ArrayList<>();
 
-            for (Booking booking : allbookings) {
+            for (Booking booking : allBookings) {
                 if (Objects.equals(booking.getItem().getId(), item.getId()) && Status.APPROVED == booking.getStatus()) {
                     bookingListByItemId.add(booking);
                     dateTimesStart.add(booking.getStart());

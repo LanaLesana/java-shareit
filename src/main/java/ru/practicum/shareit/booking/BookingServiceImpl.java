@@ -1,11 +1,13 @@
 package ru.practicum.shareit.booking;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.db.BookingStorage;
-import ru.practicum.shareit.booking.db.JpaBookingRepository;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.status.Status;
@@ -25,17 +27,12 @@ import java.util.Collections;
 import java.util.List;
 
 @Slf4j
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Service
 public class BookingServiceImpl implements BookingServiceInterface {
-    @Autowired
-    BookingStorage bookingRepository;
-    @Autowired
-    JpaItemRepository itemRepository;
-    @Autowired
-    JpaUserRepository userRepository;
-    @Autowired
-    private final JpaBookingRepository jpaBooking;
+    private final BookingStorage bookingRepository;
+    private final JpaItemRepository itemRepository;
+    private final JpaUserRepository userRepository;
     private final BookingValidation bookingValidation;
 
     @Override
@@ -85,31 +82,33 @@ public class BookingServiceImpl implements BookingServiceInterface {
         bookingValidation.checkBooking(booking);
         bookingValidation.checkOwnerAndBookerMatch(userId, booking);
 
-        bookingValidation.checkBookerOrOwner(bookingRepository.getAllBookingUsers(userId), bookingRepository.getBookingByOwner(userId));
+        bookingValidation.checkBookerOrOwner(bookingRepository.getBookingsByUser(userId), bookingRepository.getBookingByOwner(userId));
 
         return bookingRepository.getBookingById(bookingId);
     }
 
     @Override
-    public List<Booking> getAllBookingUsers(Integer userId) {
+    public List<Booking> getAllBookingUsers(Integer userId, int from, int size) {
         User user = userRepository.findUserById(userId);
         if (user == null) {
             throw new NotFoundException("Такого пользователя нет");
         }
         bookingValidation.checkBookerOrOwnerUser(user);
-        return bookingRepository.getAllBookingUsers(userId);
+        LocalDateTime timeNow = LocalDateTime.now();
+        Pageable pageable = PageRequest.of(from / size, size, Sort.by("start").descending());
+        return bookingRepository.getAllBookingUsers(userId, pageable);
     }
 
     @Override
     public List<Booking> getBookingByState(String state, Integer id) {
         if (state.equals("ALL")) {
-            return bookingRepository.getAllBookingUsers(id);
+            return bookingRepository.getBookingsByUser(id);
         }
         if (state.equals("FUTURE")) {
             return bookingRepository.findBookingsWithFutureStartTime(id);
         }
         if (state.equals("UNSUPPORTED_STATUS")) {
-            throw new BadRequestException("Unknown state: UNSUPPORTED_STATUS");
+            throw new BadRequestException(HttpStatus.BAD_REQUEST, "Unknown state: UNSUPPORTED_STATUS");
         }
         if (state.equals("WAITING")) {
             return bookingRepository.findAllByStatus(Status.WAITING);
@@ -120,7 +119,7 @@ public class BookingServiceImpl implements BookingServiceInterface {
         }
 
         if (state.equals("CURRENT")) {
-            List<Booking> bookingList = bookingRepository.getAllBookingUsers(id);
+            List<Booking> bookingList = bookingRepository.getBookingsByUser(id);
             List<Booking> list = new ArrayList<>();
             LocalDateTime localDateTime = LocalDateTime.now();
 
@@ -134,7 +133,7 @@ public class BookingServiceImpl implements BookingServiceInterface {
         }
 
         if (state.equals("PAST")) {
-            List<Booking> bookingList = bookingRepository.getAllBookingUsers(id);
+            List<Booking> bookingList = bookingRepository.getBookingsByUser(id);
             List<Booking> list = new ArrayList<>();
             LocalDateTime localDateTime = LocalDateTime.now();
 
@@ -150,13 +149,15 @@ public class BookingServiceImpl implements BookingServiceInterface {
 
     @Override
     @Transactional
-    public List<Booking> getBookingByOwner(String state, Integer ownerId) {
+    public List<Booking> getBookingByOwner(String state, Integer ownerId, Integer from, Integer size) {
         bookingValidation.checkBookerOrOwnerUser(userRepository.findUserById(ownerId));
+        LocalDateTime timeNow = LocalDateTime.now();
+        Pageable pageable = PageRequest.of(from / size, size, Sort.by("start").descending());
         if (state == null) {
-            return bookingRepository.getBookingByOwner(ownerId);
+            return bookingRepository.getBookingByOwner(ownerId, pageable);
         }
         if (state.equals("ALL")) {
-            return bookingRepository.getBookingByOwner(ownerId);
+            return bookingRepository.getBookingByOwner(ownerId, pageable);
         }
         if (state.equals("FUTURE")) {
             log.info("Делаю запрос в БД по статусу FUTURE");
@@ -178,7 +179,7 @@ public class BookingServiceImpl implements BookingServiceInterface {
         }
 
         if (state.equals("PAST")) {
-            List<Booking> bookingList = bookingRepository.getBookingByOwner(ownerId);
+            List<Booking> bookingList = bookingRepository.getBookingByOwner(ownerId, pageable);
             List<Booking> list = new ArrayList<>();
             LocalDateTime localDateTime = LocalDateTime.now();
 

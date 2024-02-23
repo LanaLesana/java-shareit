@@ -1,5 +1,6 @@
 package ru.practicum.shareit.user;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.ValidationException;
@@ -86,7 +87,7 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public void deleteUser(int id) {
         if (userHashMap.get(id) == null) {
-            throw new BadRequestException("Такого пользователя нет");
+            throw new BadRequestException(HttpStatus.BAD_REQUEST, "Такого пользователя нет");
         } else {
             userHashMap.remove(id);
         }

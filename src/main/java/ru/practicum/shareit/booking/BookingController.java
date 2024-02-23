@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.model.Booking;
@@ -12,6 +13,7 @@ import ru.practicum.shareit.exception.ConflictException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.UnsupportedStatusException;
 
+import javax.validation.constraints.Min;
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -24,6 +26,7 @@ import java.util.Map;
 @RequestMapping
 @AllArgsConstructor
 @Slf4j
+@Validated
 public class BookingController {
     @Autowired
     private final BookingServiceInterface bookingService;
@@ -51,10 +54,14 @@ public class BookingController {
 
     @GetMapping("/bookings")
     public List<Booking> getAllBookingUser(@RequestHeader("X-Sharer-User-Id") Integer id,
-                                           @RequestParam(name = "state", required = false) String state) {
+                                           @RequestParam(name = "state", required = false) String state,
+                                           @RequestParam(required = false, defaultValue = "0") @Min(value = 0,
+                                                   message = "Не может быть меньше нуля") int from,
+                                           @RequestParam(required = false, defaultValue = "10") @Min(value = 0,
+                                                   message = "Не может быть меньше нуля") int size) {
         log.info("Вызов метода получения информации. Заголовок {}, Статус {}", id, state);
         if (state == null) {
-            return bookingService.getAllBookingUsers(id);
+            return bookingService.getAllBookingUsers(id, from, size);
         } else if (state.equals("UNSUPPORTED_STATUS")) {
             throw new UnsupportedStatusException("UNSUPPORTED_STATUS");
         } else {
@@ -65,10 +72,12 @@ public class BookingController {
 
     @GetMapping("/bookings/owner")
     public List<Booking> getBookingByOwner(@RequestHeader("X-Sharer-User-Id") Integer ownerId,
-                                           @RequestParam(name = "state", required = false) String state) {
+                                           @RequestParam(name = "state", required = false) String state,
+                                           @RequestParam(required = false, defaultValue = "0") @Min(0) int from,
+                                           @RequestParam(required = false, defaultValue = "10") @Min(0) int size) {
         log.info("Вызов метода получения информации об Owner. Заголовок {}, Статус {}", ownerId, state);
 
-        return bookingService.getBookingByOwner(state, ownerId);
+        return bookingService.getBookingByOwner(state, ownerId, from, size);
     }
 
     @ExceptionHandler(NotFoundException.class)

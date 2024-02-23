@@ -2,6 +2,7 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.db.BookingStorage;
 import ru.practicum.shareit.booking.db.JpaBookingRepository;
@@ -47,16 +48,16 @@ public class ItemServiceImpl implements ItemServiceInterface {
     public ItemDto addItem(ItemDto itemDto, int sharerUserId) {
         if (itemDto.getAvailable() == null) {
             log.info("Checking availability");
-            throw new BadRequestException("Укажите доступность предмета к аренде");
+            throw new BadRequestException(HttpStatus.BAD_REQUEST, "Укажите доступность предмета к аренде");
         }
 
         if (itemDto.getName() == null || itemDto.getName().isBlank()) {
             log.info("Checking name");
-            throw new BadRequestException("Укажите имя предмета");
+            throw new BadRequestException(HttpStatus.BAD_REQUEST, "Укажите имя предмета");
         }
         if (itemDto.getDescription() == null || itemDto.getDescription().isBlank()) {
             log.info("Checking description");
-            throw new BadRequestException("Укажите описание предмета");
+            throw new BadRequestException(HttpStatus.BAD_REQUEST, "Укажите описание предмета");
         }
 
         User owner = userStorage.findUserById(sharerUserId);
@@ -66,11 +67,11 @@ public class ItemServiceImpl implements ItemServiceInterface {
             throw new NotFoundException("Такого пользователя нет.");
         } else {
             log.info("Found user with e-mail {}", owner.getEmail());
-            itemDto.setOwner(owner);
+            itemDto.setOwnerId(owner.getId());
             log.info("Set owner with ID {} to the item", sharerUserId);
         }
 
-        if (itemDto.getOwner() == null) {
+        if (itemDto.getOwnerId() == null) {
             log.info("Couldn't find user with ID {}", sharerUserId);
             throw new NotFoundException("Такого пользователя нет.");
         } else {
@@ -78,10 +79,12 @@ public class ItemServiceImpl implements ItemServiceInterface {
         }
 
         log.info("Adding item " + itemDto.getName());
-        Item item = itemDto.fromItemDto(itemDto);
+        Item item = ItemMapper.toItem(owner,itemDto);
+        item.setOwner(owner);
+        item.setRequest((itemDto.getRequestId()));
         jpaItemRepository.save(item);
         Item returnedItem = jpaItemRepository.findItemById(item.getId());
-        ItemDto returnedItemDto = returnedItem.toItemDto(returnedItem);
+        ItemDto returnedItemDto = ItemMapper.toItemDto(returnedItem);
 
         return returnedItemDto;
     }
@@ -101,7 +104,7 @@ public class ItemServiceImpl implements ItemServiceInterface {
         }
 
         itemDto.setId(itemId);
-        itemDto.setOwner(itemToCheckOwner.getOwner());
+        itemDto.setOwnerId(itemToCheckOwner.getOwner().getId());
         if (itemDto.getName() == null || itemDto.getName().isBlank()) {
             itemDto.setName(itemToCheckOwner.getName());
         }
@@ -113,10 +116,10 @@ public class ItemServiceImpl implements ItemServiceInterface {
             itemDto.setAvailable(itemToCheckOwner.getAvailable());
         }
 
-        Item item = itemDto.fromItemDto(itemDto);
+        Item item = ItemMapper.toItem(userStorage.findUserById(sharerUserId), itemDto);
 
         Item returnedItem = jpaItemRepository.save(item);
-        ItemDto returnedItemDto = returnedItem.toItemDto(returnedItem);
+        ItemDto returnedItemDto = ItemMapper.toItemDto(returnedItem);
         return returnedItemDto;
     }
 
@@ -137,7 +140,7 @@ public class ItemServiceImpl implements ItemServiceInterface {
     @Override
     public List<ItemDtoResponse> getAllItemsByOwnerId(int id) {
         if (id <= 0) {
-            throw new BadRequestException("Неверно указан id пользователя");
+            throw new BadRequestException(HttpStatus.BAD_REQUEST, "Неверно указан id пользователя");
         }
         return itemStorage.getAllByOwnerId(id);
     }
@@ -150,17 +153,17 @@ public class ItemServiceImpl implements ItemServiceInterface {
         }
         List<Item> allItems = jpaItemRepository.search(keyWord);
         List<ItemDto> allItemDto = allItems.stream()
-                .map(Item::toItemDto)
+                .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
         return allItemDto;
     }
 
     public void isValidItem(ItemDto item) {
         if (item.getName() == null || item.getName().isBlank()) {
-            throw new BadRequestException("Не указано называние предмета");
+            throw new BadRequestException(HttpStatus.BAD_REQUEST, "Не указано называние предмета");
         } else if (item.getDescription() == null || item.getDescription().isBlank()) {
-            throw new BadRequestException("Не указано описание предмета");
-        } else if (item.getOwner() == null) {
+            throw new BadRequestException(HttpStatus.BAD_REQUEST, "Не указано описание предмета");
+        } else if (item.getOwnerId() == null) {
             throw new ValidationException("Не указан собственник предмета");
         }
     }

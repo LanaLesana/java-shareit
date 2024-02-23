@@ -1,35 +1,35 @@
 package ru.practicum.shareit.item.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.request.ItemRequest;
-import ru.practicum.shareit.user.model.User;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+import ru.practicum.shareit.booking.dto.BookingDtoShort;
+import ru.practicum.shareit.comment.CommentDto;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import java.util.List;
 
 /**
  * TODO Sprint add-controllers.
  */
 @Data
+@Builder
+@EqualsAndHashCode
 @AllArgsConstructor
 @NoArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class ItemDto {
-    private int id;
-    private String name;
-    private String description;
-    private Boolean available;
-    private User owner;
-    private ItemRequest request;
 
+    Integer id;
+    @NotBlank(message = "Name не должен быть пустым")
+    String name;
+    @NotBlank(message = "description не должен быть пустым")
+    String description;
+    Integer ownerId;
+    @NotNull(message = "available не должен отсутствовать")
+    Boolean available;
+    List<CommentDto> comments;
+    BookingDtoShort lastBooking;
+    BookingDtoShort nextBooking;
+    Integer requestId;
 
-    public Item fromItemDto(ItemDto itemDto) {
-        return new Item(
-                itemDto.getId(),
-                itemDto.getName(),
-                itemDto.getDescription(),
-                itemDto.getAvailable(),
-                itemDto.getOwner(),
-                itemDto.getRequest() != null ? itemDto.getRequest() : null
-        );
-    }
 }

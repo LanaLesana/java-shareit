@@ -3,6 +3,7 @@ package ru.practicum.shareit.user;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.ConflictException;
@@ -41,7 +42,7 @@ public class UserServiceImpl implements UserServiceInterface {
     public UserDto updateUser(UserDto userDto, int userId) {
         log.info("input Data {}", userDto);
         User existingUser = userRepository.findById(userId)
-                .orElseThrow(() -> new BadRequestException("Такого пользователя не существует" + userId));
+                .orElseThrow(() -> new BadRequestException(HttpStatus.BAD_REQUEST, "Такого пользователя не существует" + userId));
 
         if (userDto.getEmail() != null && userDto.getName() == null) {
             User userDuplicateByEmail = userRepository.findUserByEmail(userDto.getEmail());
@@ -97,7 +98,7 @@ public class UserServiceImpl implements UserServiceInterface {
         if (userDto.getName() == null || userDto.getName().isBlank()) {
             throw new ValidationException("Не задано имя пользователя");
         } else if (userDto.getEmail() == null || userDto.getEmail().isBlank()) {
-            throw new BadRequestException("Не задан e-mail пользователя");
+            throw new BadRequestException(HttpStatus.BAD_REQUEST, "Не задан e-mail пользователя");
         }
     }
 

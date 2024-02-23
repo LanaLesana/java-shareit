@@ -4,7 +4,7 @@ import org.apache.coyote.Request;
 
 import java.util.HashMap;
 
-public class InMemoryRequestStorage implements RequestStorage {
+public class InMemoryRequestStorage {
     private HashMap<Integer, Request> requestHashMap = new HashMap<>();
     private Integer generatedRequestId;
 }

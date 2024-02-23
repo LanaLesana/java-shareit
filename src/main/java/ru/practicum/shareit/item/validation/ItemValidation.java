@@ -2,6 +2,7 @@ package ru.practicum.shareit.item.validation;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.status.Status;
@@ -69,29 +70,29 @@ public class ItemValidation {
     public void checkItemUpdate(Integer idUser, Item item) {
 
         if (item.getOwner().getId() != idUser) {
-            throw new BadRequestException("Невозможно обновить данные");
+            throw new BadRequestException(HttpStatus.BAD_REQUEST, "Невозможно обновить данные");
         }
     }
 
     public void checkComment(String text, LocalDateTime start) {
         if (text.isEmpty()) {
-            throw new BadRequestException("Нет комментария ");
+            throw new BadRequestException(HttpStatus.BAD_REQUEST, "Нет комментария ");
         }
         LocalDateTime localDateTime = LocalDateTime.now();
 
         if (start.isBefore(localDateTime)) {
-            throw new BadRequestException("Неверный статус ");
+            throw new BadRequestException(HttpStatus.BAD_REQUEST, "Неверный статус ");
         }
     }
 
     public void checkCommentBooking(Integer userId, List<Booking> bookings) {
 
         if (bookings.size() == 0) {
-            throw new BadRequestException("Пользователь" + userId + " не брал вишь в аренду ");
+            throw new BadRequestException(HttpStatus.BAD_REQUEST, "Пользователь" + userId + " не брал вишь в аренду ");
         }
         for (Booking booking : bookings) {
             if (booking.getStatus() == Status.REJECTED) {
-                throw new BadRequestException("Бронирование отклонено ");
+                throw new BadRequestException(HttpStatus.BAD_REQUEST, "Бронирование отклонено ");
             }
         }
 
