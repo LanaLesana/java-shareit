@@ -7,7 +7,6 @@ import ru.practicum.request.dto.RequestDto;
 import ru.practicum.request.dto.RequestDtoWithRequest;
 import ru.practicum.request.service.ItemRequestService;
 
-import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -23,7 +22,7 @@ public class RequestController {
 
     @PostMapping
     public RequestDto addItemRequest(@RequestHeader(name = USER_ID_HEADER) Long userId,
-                                     @Valid @RequestBody(required = false) RequestDto requestDto) {
+                                     @RequestBody(required = false) RequestDto requestDto) {
         log.info("Получен POST-запрос /requests {} ", requestDto);
         return itemRequestService.addItemRequest(requestDto, userId);
     }

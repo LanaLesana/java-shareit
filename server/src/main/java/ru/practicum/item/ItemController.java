@@ -8,8 +8,6 @@ import ru.practicum.item.dto.ItemDto;
 import ru.practicum.item.service.ItemService;
 import ru.practicum.mappers.ItemMapper;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
 import java.util.Collection;
 import java.util.List;
 
@@ -25,7 +23,7 @@ public class ItemController {
     private final ItemService itemService;
 
     @PostMapping
-    public ItemDto saveItem(@RequestBody @Valid ItemDto itemDto,
+    public ItemDto saveItem(@RequestBody ItemDto itemDto,
                             @RequestHeader(name = USER_ID_HEADER) Long userId) {
         log.info("Получен POST-запрос /items {} ", itemDto);
         return ItemMapper.toItemDto(itemService.saveItem(itemDto, userId));
@@ -55,7 +53,7 @@ public class ItemController {
     }
 
     @GetMapping("/search")
-    public Collection<ItemDto> searchItem(@RequestParam @NotBlank String text,
+    public Collection<ItemDto> searchItem(@RequestParam String text,
                                           @RequestParam(name = "from", defaultValue = "0") int from,
                                           @RequestParam(name = "size", defaultValue = "20") int size) {
         log.info("Получен GET-запрос /text {} ", text);

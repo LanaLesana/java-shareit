@@ -3,8 +3,6 @@ package ru.practicum.item.dto;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.springframework.format.annotation.DateTimeFormat;
-
-import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -15,7 +13,6 @@ import java.util.Objects;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CommentDto {
     Long id;
-    @NotBlank
     String text;
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     LocalDateTime created;

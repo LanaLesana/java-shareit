@@ -2,9 +2,6 @@ package ru.practicum.user.dto;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
 import java.util.Objects;
 
 @Data
@@ -15,10 +12,7 @@ import java.util.Objects;
 public class UserDto {
 
     Long id;
-    @NotBlank(message = "имя пользователя не моет быть пустым")
     String name;
-    @NotBlank(message = "Email не должен быть пустым")
-    @Email
     String email;
 
     @Override

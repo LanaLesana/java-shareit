@@ -5,8 +5,6 @@ import lombok.experimental.FieldDefaults;
 import ru.practicum.booking.dto.BookingDtoShort;
 
 import java.util.Comparator;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -22,11 +20,8 @@ public class ItemDto implements Comparator<ItemDto> {
 
 
     Long id;
-    @NotBlank(message = "Name не должен быть пустым")
     String name;
-    @NotBlank(message = "description не должен быть пустым")
     String description;
-    @NotNull(message = "available не должен отсутствовать")
     Boolean available;
     List<CommentDto> comments;
     BookingDtoShort lastBooking;
