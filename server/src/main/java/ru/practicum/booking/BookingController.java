@@ -1,14 +1,11 @@
 package ru.practicum.booking;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.booking.dto.BookingDto;
 import ru.practicum.booking.service.BookingService;
 import ru.practicum.mappers.BookingMapper;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Min;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,14 +18,13 @@ import static ru.practicum.mappers.BookingMapper.toBookingDto;
 @RequestMapping(path = "/bookings")
 @RequiredArgsConstructor
 @Slf4j
-@Validated
 public class BookingController {
     private static final String USER_ID_HEADER = "X-Sharer-User-Id";
     private final BookingService bookingService;
 
     @PostMapping
     public BookingDto saveBooking(@RequestHeader(name = USER_ID_HEADER) Long userId,
-                                  @RequestBody @Valid BookingDto bookingDto) {
+                                  @RequestBody BookingDto bookingDto) {
         log.info("Получен POST-запрос /bookings {} ", bookingDto);
         return bookingService.saveBooking(userId, bookingDto);
     }
@@ -53,8 +49,8 @@ public class BookingController {
     public List<BookingDto> getAllBookingsForBooker(@RequestHeader(name = USER_ID_HEADER) Long userId,
                                                     @RequestParam(defaultValue = "ALL")
                                                     String state,
-                                                    @RequestParam(required = false, defaultValue = "0") @Min(0) int from,
-                                                    @RequestParam(required = false, defaultValue = "10") @Min(0) int size) {
+                                                    @RequestParam(required = false, defaultValue = "0") int from,
+                                                    @RequestParam(required = false, defaultValue = "10") int size) {
         log.info("Получен GET-запрос просмотра всех забронированных вещей и статусов их бронирования " +
                 "для  пользователя");
         return bookingService.getAllBookingsForUser(userId, state, false, from, size).stream()
@@ -66,8 +62,8 @@ public class BookingController {
     public List<BookingDto> getAllBookingsForOwner(@RequestHeader(name = USER_ID_HEADER) Long userId,
                                                    @RequestParam(defaultValue = "ALL")
                                                    String state,
-                                                   @RequestParam(required = false, defaultValue = "0") @Min(0) int from,
-                                                   @RequestParam(required = false, defaultValue = "10") @Min(0) int size) {
+                                                   @RequestParam(required = false, defaultValue = "0") int from,
+                                                   @RequestParam(required = false, defaultValue = "10") int size) {
         log.info("Получен GET-запрос просмотра всех забронированных вещей и статусов их бронирования " +
                 "для владельца");
         return bookingService.getAllBookingsForUser(userId, state, true, from, size).stream()

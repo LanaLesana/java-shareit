@@ -31,11 +31,3 @@ services:
       - POSTGRES_USER=sa
       - POSTGRES_PASSWORD=sa
 
-    volumes:
-      #      - pgdata:/var/lib/postgresql/data
-      - "/etc/timezone:/etc/timezone:ro"
-      - "/etc/localtime:/etc/localtime:ro"
-
-#volumes:
-#  pgdata:
-#    external: true

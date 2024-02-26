@@ -2,15 +2,12 @@ package ru.practicum.user;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.mappers.UserMapper;
 import ru.practicum.user.dto.UserDto;
 import ru.practicum.user.model.User;
 import ru.practicum.user.service.UserService;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
@@ -22,7 +19,6 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping(path = "/users")
 @RequiredArgsConstructor
-@Validated
 public class UserController {
 
     private final UserService userService;
@@ -36,20 +32,20 @@ public class UserController {
     }
 
     @GetMapping("{userId}")
-    public User getUserById(@PathVariable @Valid Long userId) {
+    public User getUserById(@PathVariable Long userId) {
         log.info("Получен GET-запрос /userId {} ", userId);
         return userService.getUserById(userId);
     }
 
     @PostMapping
-    public UserDto saveUser(@NotNull @Valid @RequestBody UserDto userDto) {
+    public UserDto saveUser(@RequestBody UserDto userDto) {
         log.info("Получен POST-запрос /users {} ", userDto);
         User user = UserMapper.toUser(userDto);
         return UserMapper.toUserDto(userService.saveUser(user));
     }
 
     @DeleteMapping("{userId}")
-    public void deleteUser(@Valid @PathVariable Long userId) {
+    public void deleteUser(@PathVariable Long userId) {
         userService.deleteUser(userId);
         log.info("Получен DELETE-запрос /users/:userId {} ", userId);
     }

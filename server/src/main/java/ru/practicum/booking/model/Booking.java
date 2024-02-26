@@ -7,7 +7,6 @@ import ru.practicum.item.model.Item;
 import ru.practicum.user.model.User;
 
 import javax.persistence.*;
-import javax.validation.constraints.Future;
 import java.time.LocalDateTime;
 
 /**
@@ -30,7 +29,6 @@ public class Booking {
     @Column(name = "start_date")
     LocalDateTime start;
     @Column(name = "end_date")
-    @Future
     LocalDateTime end;
     @ManyToOne(fetch = FetchType.EAGER)
     @ToString.Exclude
